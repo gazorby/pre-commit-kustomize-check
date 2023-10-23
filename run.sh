@@ -13,7 +13,7 @@ while [[ $# -gt 0 ]]; do
         ;;
     *)
         directory="$1"
-        shit
+        shift
         break
         ;;
     esac
