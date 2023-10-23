@@ -22,7 +22,7 @@ FROM alpine:${ALPINE_VERSION}
 
 COPY --from=build_base /tmp/kustomize /usr/local/bin/kustomize
 COPY --from=build_base /tmp/kubeconform /usr/local/bin/kubeconform
-COPY ./run.sh /src/run.sh
+COPY ./run.sh /app/run.sh
 
 RUN adduser kustomize -D \
   && apk add git openssh \
@@ -33,6 +33,6 @@ RUN chmod +x /usr/local/bin/kustomize \
   && ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
 
 USER kustomize
-WORKDIR /src
+WORKDIR /app
 
 ENTRYPOINT [ "./run.sh" ]
