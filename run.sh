@@ -14,6 +14,8 @@ while [[ $# -gt 0 ]]; do
     *)
         directory="$1"
         shit
+        break
+        ;;
     esac
 done
 
