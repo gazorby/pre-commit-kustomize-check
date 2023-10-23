@@ -1,7 +1,5 @@
 #!/usr/bin/env sh
 
-opts=$(getopt --longoptions "with-kubeconform" --options "with-kubeconform" --name "$(basename "$0")" -- "$@")
-
 with_kubeconform="unset"
 
 while [[ $# -gt 0 ]]; do
