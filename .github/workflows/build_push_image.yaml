@@ -10,56 +10,40 @@ on:
       - main
 
 env:
-  KUSTOMIZE_VERSION: v4.5.7
+  KUSTOMIZE_VERSION: v5.2.1
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: checkout code
-        uses: actions/checkout@v3.1.0
+        uses: actions/checkout@v4
 
-      - name: Prepare
-        id: prepare
-        run: |
-          DOCKER_IMAGE=rtrox/kustomize_check
-          DOCKER_PLATFORMS=linux/amd64,linux/arm64,linux/ppc64le,linux/s390x
-          TAGS="--tag ${DOCKER_IMAGE}:latest"
-          TAGS="$TAGS --tag ${DOCKER_IMAGE}:${KUSTOMIZE_VERSION}"
-          echo ::set-output name=docker_image::${DOCKER_IMAGE}
-          echo ::set-output name=buildx_args::--platform ${DOCKER_PLATFORMS} \
-            $TAGS --file ./Dockerfile ./
+      - name: Extract metadata (tags, labels) for Docker
+        id: metadata
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            gazby/kustomize-check
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
 
-      # https://github.com/docker/setup-qemu-action
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2.1.0
+      - name: Login to docker registry
+        id: login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # https://github.com/docker/setup-buildx-action
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2.2.0
-
-      - name: Docker Buildx (build)
-        if: github.event_name == 'pull_request'
-        run: |
-          docker buildx build --output "type=image,push=false" ${{ steps.prepare.outputs.buildx_args }}
-
-      - name: Docker Login
-        if: success() && github.event_name == 'push'
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-        run: |
-          echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USERNAME}" --password-stdin
-
-      - name: Docker Buildx (push)
-        if: success() && github.event_name == 'push'
-        run: |
-          docker buildx build --output "type=image,push=true" ${{ steps.prepare.outputs.buildx_args }}
-
-      - name: Clear
-        if: always() && github.event_name == 'push'
-        run: |
-          rm -f ${HOME}/.docker/config.json
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
   tag_release:
     runs-on: ubuntu-latest
@@ -90,6 +74,3 @@ jobs:
               ref: `tags/${KUSTOMIZE_VERSION}`,
               sha: context.sha
             })
-
-
-
