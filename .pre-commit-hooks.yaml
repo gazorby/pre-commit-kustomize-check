@@ -1,13 +1,13 @@
--   id: kustomize_check
+-   id: kustomize-check
     name: kustomize docker image
     description: Kustomize Check from Docker Image
-    entry: gazby/kustomize-check:5.2.1 kustomize build
+    entry: gazby/kustomize-check:dev
     language: docker_image
     args: [overlay/production-us]
     always_run: false
     pass_filenames: false
     files: ((^|/)*.(ya?ml)$)
--   id: kustomize_check_local
+-   id: kustomize-check-local
     name: kustomize docker local
     description: Kustomize Check via Local Docker Build
     entry: kustomize build
@@ -16,7 +16,7 @@
     always_run: false
     pass_filenames: false
     files: ((^|/)*.(ya?ml)$)
--   id: kustomize_check_system
+-   id: kustomize-check-system
     name: Kustomize Check using installed kustomize binary
     entry: kustomize build
     language: system
@@ -24,3 +24,11 @@
     always_run: false
     pass_filenames: false
     files: ((^|/)*.(ya?ml)$)
+-   id: kustomize-check-kubeconform
+    name: kustomize docker image with kubeconform
+    description: kustomize
+    entry: gazby/kustomize-check:dev --with-kubeconform
+    language: docker_image
+    args: [overlay/production-us]
+    always_run: true
+    pass_filenames: false
