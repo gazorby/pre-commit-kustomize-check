@@ -35,4 +35,4 @@ RUN chmod +x /usr/local/bin/kustomize \
 USER kustomize
 WORKDIR /src
 
-ENTRYPOINT [ "run.sh" ]
+ENTRYPOINT [ "./run.sh" ]
