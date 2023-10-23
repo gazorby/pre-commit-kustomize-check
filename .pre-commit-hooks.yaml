@@ -1,7 +1,7 @@
 -   id: kustomize
     name: kustomize docker image
     description: Kustomize Check from Docker Image
-    entry: gazby/kustomize-check:dev
+    entry: gazby/kustomize-check:v5.2.1
     language: docker_image
     args: [overlay/production-us]
     always_run: false
@@ -19,7 +19,7 @@
 -   id: kustomize-kubeconform
     name: kustomize docker image with kubeconform
     description: kustomize
-    entry: gazby/kustomize-check:dev --with-kubeconform
+    entry: gazby/kustomize-check:v5.2.1 --with-kubeconform
     language: docker_image
     args: [overlay/production-us]
     always_run: true
